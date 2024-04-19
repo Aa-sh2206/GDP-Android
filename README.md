@@ -52,7 +52,8 @@ Android Development Environment
 
 In- app cleaning code is in admin.js which is in scr folder
 
-Personal E-mail: aashritha.dodda79@gmail.com
+Contact info:
+E-mail: aashritha.dodda79@gmail.com
 
 
 
