@@ -3,9 +3,10 @@ import React from 'react';
 import Header from '../components/header';
 import {useSelector, useDispatch} from 'react-redux';
 import {setCred} from '../store/slices/homeSlice';
+import auth from '@react-native-firebase/auth';
 
 const CourseDetails = ({navigation, route}) => {
-  const {Course} = route.params;
+  const {Course, name} = route.params;
   const dispatch = useDispatch();
   const hash = {
     'Object Oriented Programming':
@@ -26,8 +27,13 @@ const CourseDetails = ({navigation, route}) => {
       <Header
         name="Course Description"
         login={() => {
-          dispatch(setCred({username: '', password: ''}));
-          navigation.popToTop();
+          auth()
+            .signOut()
+            .then(() => {
+              console.log('User signed out!');
+              dispatch(setCred({username: '', password: '', loggedIn: false}));
+              navigation.popToTop();
+            });
         }}
       />
       <View style={{padding: 24}}>
@@ -39,7 +45,7 @@ const CourseDetails = ({navigation, route}) => {
             lineHeight: 26,
             fontWeight: 700,
           }}>
-          {Course}
+          {name}
         </Text>
         <Text
           style={{
@@ -50,7 +56,7 @@ const CourseDetails = ({navigation, route}) => {
             marginTop: 16,
             marginBottom: 16,
           }}>
-          {hash[Course]}
+          {Course}
         </Text>
       </View>
     </SafeAreaView>

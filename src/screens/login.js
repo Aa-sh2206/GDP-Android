@@ -1,3 +1,4 @@
+import auth from '@react-native-firebase/auth';
 import {
   View,
   TouchableOpacity,
@@ -9,30 +10,60 @@ import {
   Text,
   Dimensions,
 } from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
+import {fetchUserData} from '../api/auth';
 
 // store
 import {setCred} from '../store/slices/homeSlice';
 
 const Login = ({route, navigation}) => {
-  const {type} = route.params;
+  // const {type} = route.params;
   const homeData = useSelector(state => state.home);
-  const [user, setUser] = React.useState(homeData?.username);
-  const [password, setPassword] = React.useState(homeData?.password);
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
   const dispatch = useDispatch();
+  const [message, setMessage] = React.useState('');
 
-  const submitHandler = () => {
-    if (!user && !password) {
-      dispatch(setCred({username: '', password: ''}));
-      Alert.alert('username and password is required');
+  const HandleLogin = async () => {
+    if (!email && !password) {
+      dispatch(setCred({email: '', password: ''}));
+      Alert.alert('email and password is required');
     } else {
-      if (user === 'admin' && password === 'Admin@123') {
-        dispatch(setCred({username: user, password: password}));
-        navigation.navigate('Dashboard');
+      if (email && password) {
+        try {
+          console.log(email);
+          const isUserCreated = await auth().signInWithEmailAndPassword(
+            email.trim(),
+            password,
+          );
+          const additionalDetails = await fetchUserData(isUserCreated.user.uid);
+          console.log('creds', isUserCreated, additionalDetails);
+          dispatch(
+            setCred({
+              email: email,
+              password: password,
+              loggedIn: true,
+              class: additionalDetails.class,
+              firstName: additionalDetails.firstName,
+              lastName: additionalDetails.lastName,
+              middleName: additionalDetails.middleName,
+              phone: additionalDetails.phone,
+              roleNumber: additionalDetails.roleNumber,
+              userRole: additionalDetails.userRole,
+              dept: additionalDetails.dept ? additionalDetails.dept : '',
+              course: additionalDetails.course ? additionalDetails.course : '',
+            }),
+          );
+          navigation.navigate('Dashboard');
+        } catch (err) {
+          console.log(err.message);
+          setMessage(err.message);
+          Alert.alert('email and password is incorrect');
+        }
       } else {
-        dispatch(setCred({username: '', password: ''}));
-        Alert.alert('user or password is incorrect');
+        dispatch(setCred({email: '', password: ''}));
+        Alert.alert('email or password is incorrect');
       }
     }
   };
@@ -54,23 +85,24 @@ const Login = ({route, navigation}) => {
           }}>
           <TextInput
             style={styles.input}
-            onChangeText={setUser}
-            value={user}
-            placeholder="Username"
+            onChangeText={value => setEmail(value)}
+            value={email}
+            placeholder="Email"
             placeholderTextColor={'#000'}
           />
           <TextInput
             style={styles.input}
-            onChangeText={setPassword}
+            onChangeText={value => setPassword(value)}
             value={password}
             placeholder="Password"
             placeholderTextColor={'#000'}
             secureTextEntry={true}
           />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => submitHandler()}>
-            <Text style={styles.buttonText}>Login As {type}</Text>
+          <TouchableOpacity style={styles.button} onPress={() => HandleLogin()}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('forgot')}>
+            <Text style={styles.text}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -87,11 +119,12 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   text: {
-    fontSize: 34,
+    fontSize: 20,
     fontFamily: 'Nunito-Regular',
     color: '#000',
-    lineHeight: 50,
+    lineHeight: 30,
     textAlign: 'center',
+    marginTop: 24,
   },
   buttonText: {
     fontSize: 20,
@@ -106,7 +139,8 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#003B70',
-    paddingVertical: 12,
+    opacity: 0.9,
+    paddingVertical: 6,
     marginTop: 20,
     width: '94%',
     alignSelf: 'center',

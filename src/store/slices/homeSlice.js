@@ -1,16 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
-const user = {
-  admin: {
-    firstName: 'Steve',
-    middleName: 'harley',
-    lastName: 'norman',
-    email: 'steveharley@gmail.com',
-    phone: '1-238-386-9659',
-    class: 'Computer science',
-    roleNumber: '12',
-  },
-};
-// Initial state
+
+//intial state
 const homeInit = {
   username: '',
   password: '',
@@ -21,6 +11,9 @@ const homeInit = {
   phone: '',
   class: '',
   roleNumber: '',
+  loggedIn: false,
+  dept: '',
+  course: '',
 };
 
 // User slice
@@ -30,15 +23,19 @@ export const homeSlice = createSlice({
   reducers: {
     // Set onboarding data
     setCred: (state, action) => {
-      state.username = action.payload.username;
-      state.password = action.payload.password;
-      state.firstName = user.admin.firstName;
-      state.middleName = user.admin.middleName;
-      state.lastName = user.admin.lastName;
-      state.email = user.admin.email;
-      state.phone = user.admin.phone;
-      state.class = user.admin.class;
-      state.roleNumber = user.admin.roleNumber;
+      const userData = action.payload; // Data retrieved from the backend
+      state.password = userData.password;
+      state.firstName = userData.firstName;
+      state.middleName = userData.middleName;
+      state.lastName = userData.lastName;
+      state.email = userData.email;
+      state.phone = userData.phone;
+      state.userRole = userData.userRole;
+      state.class = userData.class;
+      state.roleNumber = userData.roleNumber;
+      state.loggedIn = action.payload.loggedIn;
+      state.dept = action.payload.dept;
+      state.course = action.payload.course;
     },
     updateCred: (state, action) => {
       state.firstName = action.payload.firstName;
@@ -46,8 +43,10 @@ export const homeSlice = createSlice({
       state.lastName = action.payload.lastName;
       state.email = action.payload.email;
       state.phone = action.payload.phone;
+      state.userRole = action.payload.userData;
       state.class = action.payload.class;
       state.roleNumber = action.payload.roleNumber;
+      state.loggedIn = action.payload.loggedIn;
     },
   },
 });

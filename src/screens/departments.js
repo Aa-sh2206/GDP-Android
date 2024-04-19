@@ -4,21 +4,25 @@ import {
   SafeAreaView,
   TouchableOpacity,
   FlatList,
+  StyleSheet,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Header from '../components/header';
 import DepartmentCard from '../components/departments';
 import {useSelector, useDispatch} from 'react-redux';
 import {setCred} from '../store/slices/homeSlice';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 const Departments = ({navigation}) => {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState('Grad');
-  const [items, setItems] = useState([
-    {label: 'Masters', value: 'Grad'},
-    {label: 'Bachelors', value: 'UnderGrad'},
-  ]);
+  // const [open, setOpen] = useState(false);
+  const homeData = useSelector(state => state.home);
+  const [value, setValue] = useState([]);
+  // const [items, setItems] = useState([
+  //   {label: 'Masters', value: 'Grad'},
+  //   {label: 'Bachelors', value: 'UnderGrad'},
+  // ]);
   const depHash = {
     Grad: [
       {
@@ -79,25 +83,56 @@ const Departments = ({navigation}) => {
       },
     ],
   };
+  console.log(homeData);
+  useEffect(() => {
+    const departmentCollectionRef = firestore().collection('Departments');
+    let departmentQuery = departmentCollectionRef;
+
+    if (homeData.userRole !== 'SuperAdmin' && homeData.dept) {
+      // Filter the departments where the department field matches homedata.dept
+      departmentQuery = departmentQuery.where('name', '==', homeData.dept);
+    }
+    departmentQuery
+      .get()
+      .then(querySnapshot => {
+        const departments = [];
+        querySnapshot.forEach(documentSnapshot => {
+          departments.push({
+            ...documentSnapshot.data(),
+          });
+        });
+        setValue(departments);
+      })
+      .catch(error => {
+        console.log('Error getting documents: ', error);
+      });
+  }, []);
+
   const dispatch = useDispatch();
   const departmentRenderItem = ({item, index, sperator}) => {
     return <DepartmentCard dep={item} navigation={navigation} />;
   };
+  console.log('value', value);
   return (
     <SafeAreaView
       style={{
         backgroundColor: '#fff',
-        flex: 1,
+        flex: 2,
       }}>
       <Header
         name="Departments"
         login={() => {
-          dispatch(setCred({username: '', password: ''}));
-          navigation.popToTop();
+          auth()
+            .signOut()
+            .then(() => {
+              console.log('User signed out!');
+              dispatch(setCred({username: '', password: '', loggedIn: false}));
+              navigation.popToTop();
+            });
         }}
       />
       <View style={{marginTop: 10, padding: 16}}>
-        <DropDownPicker
+        {/* <DropDownPicker
           open={open}
           value={value}
           items={items}
@@ -114,11 +149,11 @@ const Departments = ({navigation}) => {
           textStyle={{
             color: '#00420C',
           }}
-        />
+        /> */}
         <View style={{marginTop: 24}}>
-          {value && depHash[value] && (
+          {value.length ? (
             <FlatList
-              data={depHash[value]}
+              data={value}
               keyExtractor={dep => dep.id}
               renderItem={departmentRenderItem}
               numColumns={2}
@@ -128,11 +163,23 @@ const Departments = ({navigation}) => {
               }}
               showsVerticalScrollIndicator={false}
             />
+          ) : (
+            <Text style={styles.loadingText}>Loading...</Text>
           )}
         </View>
       </View>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingText: {
+    fontSize: 32,
+    fontFamily: 'Nunito-Regular',
+    color: '#003B70',
+    lineHeight: 40,
+    textAlign: 'center',
+  },
+});
 
 export default Departments;

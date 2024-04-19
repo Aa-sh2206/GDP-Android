@@ -4,17 +4,22 @@ import {
   SafeAreaView,
   TouchableOpacity,
   FlatList,
+  StyleSheet,
 } from 'react-native';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import Header from '../components/header';
 import {useSelector, useDispatch} from 'react-redux';
 import {setCred} from '../store/slices/homeSlice';
 import CourseItem from '../components/details';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 const Details = ({navigation, route}) => {
   // Nav props
-  const {Department} = route.params;
+  const {Department, name} = route.params;
+  const [value, setValue] = useState([]);
   const dispatch = useDispatch();
+  const homeData = useSelector(state => state.home);
   const hash = {
     'School of Computer science and Information systems':
       'The School of Computer Science and Information Systems is dedicated to the development of future leaders in the computing industry. Our highly-qualified faculty provide a distinctive educational experience through hands-on, profession-based learning opportunities.',
@@ -95,6 +100,36 @@ const Details = ({navigation, route}) => {
     ],
   };
 
+  useEffect(() => {
+    if (Department) {
+      const coursesCollectionRef = firestore().collection('courses');
+      let coursesQuery = coursesCollectionRef.where(
+        'dept_id',
+        '==',
+        Department,
+      );
+
+      if (homeData.userRole === 'Faculty' && homeData.course) {
+        // Filter the courses where the course field matches homedata.course
+        coursesQuery = coursesQuery.where('course_name', '==', homeData.course);
+      }
+      coursesQuery
+        .get()
+        .then(querySnapshot => {
+          const courses = [];
+          querySnapshot.forEach(documentSnapshot => {
+            courses.push({
+              ...documentSnapshot.data(),
+            });
+          });
+          setValue(courses);
+        })
+        .catch(error => {
+          console.log('Error getting documents: ', error);
+        });
+    }
+  }, [Department]);
+
   const renderCourseList = ({item, index, sperator}) => {
     return <CourseItem course={item} navigation={navigation} index={index} />;
   };
@@ -107,8 +142,13 @@ const Details = ({navigation, route}) => {
       <Header
         name="Description"
         login={() => {
-          dispatch(setCred({username: '', password: ''}));
-          navigation.popToTop();
+          auth()
+            .signOut()
+            .then(() => {
+              console.log('User signed out!');
+              dispatch(setCred({username: '', password: '', loggedIn: false}));
+              navigation.popToTop();
+            });
         }}
       />
       <View style={{padding: 24}}>
@@ -120,29 +160,47 @@ const Details = ({navigation, route}) => {
             lineHeight: 26,
             fontWeight: 700,
           }}>
-          {Department}
+          {name}
         </Text>
-        <Text
-          style={{
-            color: '#333',
-            fontFamily: 'Nunito-Regular',
-            fontSize: 14,
-            lineHeight: 20,
-            marginTop: 16,
-            marginBottom: 16,
-          }}>
-          {hash[Department]}
-        </Text>
-        {Department && courseHash[Department] && (
-          <FlatList
-            data={courseHash[Department]}
-            keyExtractor={course => course.id}
-            renderItem={renderCourseList}
-          />
+        {value.length ? (
+          <>
+            <Text
+              style={{
+                color: '#333',
+                fontFamily: 'Nunito-Regular',
+                fontSize: 14,
+                lineHeight: 20,
+                marginTop: 16,
+                marginBottom: 16,
+              }}>
+              {value.course_name}
+            </Text>
+            <View style={{height: 550}}>
+              <FlatList
+                data={value}
+                keyExtractor={course => course.id}
+                renderItem={renderCourseList}
+              />
+            </View>
+          </>
+        ) : (
+          <>
+            <Text style={styles.loadingText}>Loading...</Text>
+          </>
         )}
       </View>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingText: {
+    fontSize: 32,
+    fontFamily: 'Nunito-Regular',
+    color: '#003B70',
+    lineHeight: 40,
+    textAlign: 'center',
+  },
+});
 
 export default Details;

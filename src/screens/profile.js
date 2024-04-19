@@ -14,6 +14,11 @@ import Header from '../components/header';
 import {useSelector, useDispatch} from 'react-redux';
 import {setCred, updateCred} from '../store/slices/homeSlice';
 import {useFocusEffect} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
+import DocumentPicker from 'react-native-document-picker';
+import {readFile} from 'react-native-fs';
+import {useEffect} from 'react';
+import XLSX from 'xlsx';
 
 const Profile = ({navigation}) => {
   const homeData = useSelector(state => state.home);
@@ -55,14 +60,19 @@ const Profile = ({navigation}) => {
       <Header
         name="Profile"
         login={() => {
-          dispatch(setCred({username: '', password: ''}));
-          navigation.popToTop();
+          auth()
+            .signOut()
+            .then(() => {
+              console.log('User signed out!');
+              dispatch(setCred({email: '', password: '', loggedIn: false}));
+              navigation.popToTop();
+            });
         }}
       />
       <ScrollView style={{marginTop: 10, padding: 24}}>
         <View style={styles.flex}>
           <View style={styles.first}>
-            <View style={{position: 'relative'}}>
+            {/* <View style={{position: 'relative'}}>
               <Image
                 source={{uri: 'https://i.pravatar.cc/100'}}
                 style={{width: 100, height: 100}}
@@ -77,7 +87,19 @@ const Profile = ({navigation}) => {
                   right: -10,
                 }}
               />
-            </View>
+            </View> */}
+            {homeData?.userRole === 'SuperAdmin' && (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigation.navigate('Admin')}>
+                <Text style={styles.buttonText}>Admin Portal</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('change')}>
+              <Text style={styles.buttonText}>Reset Password</Text>
+            </TouchableOpacity>
           </View>
         </View>
         <View style={styles.second}>
@@ -137,7 +159,7 @@ const Profile = ({navigation}) => {
             placeholder="Username"
             placeholderTextColor={'#000'}
           />
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.button}
             onPress={() => {
               dispatch(
@@ -154,7 +176,7 @@ const Profile = ({navigation}) => {
               );
             }}>
             <Text style={styles.buttonText}>Update</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -192,10 +214,12 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#003B70',
-    paddingVertical: 12,
-    width: '94%',
+    opacity: 0.9,
+    padding: 12,
+    width: '100%',
     alignSelf: 'center',
     borderRadius: 8,
+    marginBottom: 16,
   },
   buttonText: {
     fontSize: 20,

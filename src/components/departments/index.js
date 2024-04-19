@@ -17,7 +17,8 @@ const DepartmentCard = ({navigation, dep}) => {
     <Pressable
       onPress={() => {
         navigation.navigate('Details', {
-          Department: dep.title,
+          Department: dep.id,
+          name: dep.name,
         });
       }}>
       <View style={styles.courseItem}>
@@ -32,10 +33,10 @@ const DepartmentCard = ({navigation, dep}) => {
             height: '100%',
           }}>
           <Text numberOfLines={3} style={styles.courseTitle}>
-            {dep.title}
+            {dep.name}
           </Text>
 
-          <View
+          {/* <View
             style={{
               flexDirection: 'row',
               justifyContent: 'flex-start',
@@ -46,7 +47,7 @@ const DepartmentCard = ({navigation, dep}) => {
                 : dep.chapters_count + ' chapter'}
             </Text>
             <Text style={styles.courseSubTitle}>{dep.time}</Text>
-          </View>
+          </View> */}
         </View>
       </View>
     </Pressable>

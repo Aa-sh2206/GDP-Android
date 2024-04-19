@@ -1,5 +1,7 @@
 apply plugin: "com.android.application"
+
 apply plugin: "com.facebook.react"
+
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -103,13 +105,18 @@ android {
     }
 }
 
+
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
+ implementation platform('com.google.firebase:firebase-bom:32.7.2') // Use the latest version
     implementation("com.facebook.react:react-android")
+
+
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
+    exclude group:'com.squareup.okhttp3', module:'okhttp'
     }
 
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
@@ -118,6 +125,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-}
 
+ 
+}
+// Add the Google services plugin at the bottom
+apply plugin: 'com.google.gms.google-services'
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

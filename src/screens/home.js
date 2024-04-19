@@ -1,6 +1,8 @@
 //home page
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import firestore from '@react-native-firebase/firestore';
+import React, {useEffect, useState} from 'react';
+
 import {
   SafeAreaView,
   ScrollView,
@@ -14,14 +16,15 @@ import {
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 
+
 function Home({navigation}) {
   const backgroundStyle = {
     flex: 1,
     backgroundColor: '#fff',
   };
 
-  const homeData = useSelector(state => state.home);
-  return (
+
+  return (       
     <SafeAreaView style={backgroundStyle}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <Image
@@ -30,45 +33,29 @@ function Home({navigation}) {
         />
         <Text style={{...styles.text, marginTop: 40}}>Choose Your Login</Text>
         <View style={styles.head}>
-          <View style={{width: '50%', alignItems: 'center'}}>
+
+        <View style={{width: '50%', alignItems: 'center'}}>
             <TouchableOpacity
               onPress={() =>
-                homeData?.username === 'admin' &&
-                homeData?.password === 'Admin@123'
+                homeData?.loggedIn
                   ? navigation.navigate('Dashboard')
                   : navigation.navigate('Login', {
-                      type: 'Student',
+                      type: 'Super Admin',
                     })
               }>
               <Image
-                source={require('../assets/images/student.png')}
+                source={require('../assets/images/admin.png')}
                 style={styles.icon}
               />
-              <Text style={styles.text}>Student</Text>
+              <Text style={styles.text}>Super Admin</Text>
             </TouchableOpacity>
           </View>
+
+          
           <View style={{width: '50%', alignItems: 'center'}}>
             <TouchableOpacity
               onPress={() =>
-                homeData?.username === 'admin' &&
-                homeData?.password === 'Admin@123'
-                  ? navigation.navigate('Dashboard')
-                  : navigation.navigate('Login', {
-                      type: 'Teacher',
-                    })
-              }>
-              <Image
-                source={require('../assets/images/teacher.png')}
-                style={styles.icon}
-              />
-              <Text style={styles.text}>Teacher</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{width: '100%', alignItems: 'center', marginTop: 40}}>
-            <TouchableOpacity
-              onPress={() =>
-                homeData?.username === 'admin' &&
-                homeData?.password === 'Admin@123'
+                homeData?.loggedIn
                   ? navigation.navigate('Dashboard')
                   : navigation.navigate('Login', {
                       type: 'Admin',
@@ -81,6 +68,24 @@ function Home({navigation}) {
               <Text style={styles.text}>Admin</Text>
             </TouchableOpacity>
           </View>
+
+          <View style={{width: '100%', alignItems: 'center'}}>
+            <TouchableOpacity
+              onPress={() =>
+                homeData?.loggedIn
+                  ? navigation.navigate('Dashboard')
+                  : navigation.navigate('Login', {
+                      type: 'Teacher',
+                    })
+              }>
+              <Image
+                source={require('../assets/images/teacher.png')}
+                style={styles.icon}
+              />
+              <Text style={styles.text}>Teacher</Text>
+            </TouchableOpacity>
+          </View>
+         
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -105,10 +110,12 @@ const styles = StyleSheet.create({
   img: {
     resizeMode: 'stretch',
     width: Dimensions.get('screen').width,
+    paddingVertical: '50' 
   },
   icon: {
     width: 100,
     height: 100,
+  
   },
 });
 

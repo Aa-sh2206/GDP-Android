@@ -4,6 +4,7 @@ import {useSelector, useDispatch} from 'react-redux';
 
 const Header = props => {
   const homeData = useSelector(state => state.home);
+  console.log(homeData?.loggedIn);
   return (
     <View style={styles.headerContainer}>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -13,7 +14,7 @@ const Header = props => {
         />
       </View>
       <Text style={styles.headerText}>{props.name}</Text>
-      {homeData?.username === 'admin' && homeData?.password === 'Admin@123' ? (
+      {homeData?.loggedIn ? (
         <Pressable onPress={props.login}>
           <Image
             source={require('../../assets/images/signout.png')}

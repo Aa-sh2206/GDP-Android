@@ -3,6 +3,7 @@ import React from 'react';
 import Header from '../components/header';
 import {useSelector, useDispatch} from 'react-redux';
 import {setCred} from '../store/slices/homeSlice';
+import auth from '@react-native-firebase/auth';
 
 const School = ({navigation}) => {
   const dispatch = useDispatch();
@@ -15,8 +16,13 @@ const School = ({navigation}) => {
       <Header
         name="Dashboard"
         login={() => {
-          dispatch(setCred({username: '', password: ''}));
+          auth()
+          .signOut()
+          .then(() => {
+          console.log('User signed out!')
+          dispatch(setCred({username: '', password: '', loggedIn: false}));
           navigation.popToTop();
+          });
         }}
       />
       <View style={{marginTop: 10, padding: 24}}>

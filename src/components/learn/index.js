@@ -1,15 +1,9 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, Image} from 'react-native';
 
-const CourseItem = ({navigation, course, index}) => {
+const LearnItem = ({learn, index}) => {
   return (
-    <TouchableOpacity
-      onPress={() => {
-        navigation.navigate('Assignment', {
-          Assign: course.id,
-          name: course.course_name,
-        });
-      }}>
+    <View>
       <View style={styles.outerView}>
         <View style={styles.chapterItemMain}>
           <Text
@@ -24,17 +18,14 @@ const CourseItem = ({navigation, course, index}) => {
         </View>
         <View style={styles.textSection}>
           <Text numberOfLines={2} style={styles.chapterItemTitle}>
-            {course.course_name}
+            {learn.outcome_name}
+          </Text>
+          <Text numberOfLines={2} style={styles.chapterItemTitle}>
+            {learn.rating}
           </Text>
         </View>
-        <View>
-          <Image
-            style={styles.ChapterItemDownload}
-            source={require('../../assets/images/chevron-right.png')}
-          />
-        </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 const styles = StyleSheet.create({
@@ -104,4 +95,4 @@ const styles = StyleSheet.create({
     height: 20,
   },
 });
-export default CourseItem;
+export default LearnItem;
