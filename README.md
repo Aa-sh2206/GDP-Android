@@ -1,7 +1,7 @@
 ## Pre requisites
 
 - Node
-- React native ios/android setup - [Installation guide](https://reactnative.dev/docs/environment-setup)
+- React native android setup - [Installation guide](https://reactnative.dev/docs/environment-setup)
 
 ## Run project in development
 
@@ -11,17 +11,11 @@ Clone the repository and run the following commands to run the app in your local
 
   > npm install
 
-- For iOS
-
-  > cd ios && pod install
 
 - Run on Android
 
   > npm run android
 
-- Run on iOS
-
-  > npm run ios
 
 - To start metro server (if it doesn't start automatically)
 
