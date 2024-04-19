@@ -50,7 +50,7 @@ Android Development Environment
   e.	Click Edit.
   f.	Click New and add the path to platform-tools to the list.
 
-In- app cleaning code is in admin.js which is in scr folder
+## In- app cleaning code is in admin.js 
 
 Contact info:
 E-mail: aashritha.dodda79@gmail.com
